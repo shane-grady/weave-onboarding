@@ -1,128 +1,53 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-export class ApiClient {
-  private baseUrl: string;
-
-  constructor(baseUrl: string = API_BASE_URL) {
-    this.baseUrl = baseUrl;
-  }
-
-  async createUser(connectionId: string, name?: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/users`, {
+export const api = {
+  async createUser(connectionId: string): Promise<{ user_id: string }> {
+    const res = await fetch(`${API_BASE_URL}/users`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        connection_id: connectionId,
-        name,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ connection_id: connectionId }),
     });
+    if (!res.ok) throw new Error('Failed to create user');
+    return res.json();
+  },
 
-    if (!response.ok) {
-      throw new Error(`Failed to create user: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async getUser(userId: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/users/${userId}`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get user: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async initiateConnection(userId: string, authConfigId?: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/connections/initiate`, {
+  async initiateConnection(userId: string, authConfigId?: string): Promise<{
+    connection_id: string;
+    redirect_url?: string;
+  }> {
+    const res = await fetch(`${API_BASE_URL}/connections/initiate`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        auth_config_id: authConfigId,
-      }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, auth_config_id: authConfigId }),
     });
+    if (!res.ok) throw new Error('Failed to initiate connection');
+    return res.json();
+  },
 
-    if (!response.ok) {
-      throw new Error(`Failed to initiate connection: ${response.statusText}`);
-    }
+  async checkConnectionStatus(connectionId: string): Promise<{
+    status: string;
+    connection_id: string;
+  }> {
+    const res = await fetch(`${API_BASE_URL}/connections/${connectionId}/status`);
+    if (!res.ok) throw new Error('Failed to check status');
+    return res.json();
+  },
 
-    return response.json();
-  }
+  async research(userId: string): Promise<{
+    status: string;
+    data: { first_name: string; full_name?: string; insights: Array<{ label: string; value: string }> };
+  }> {
+    const res = await fetch(`${API_BASE_URL}/research/${userId}`, { method: 'POST' });
+    if (!res.ok) throw new Error('Research failed');
+    return res.json();
+  },
 
-  async checkConnectionStatus(connectionId: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/connections/${connectionId}/status`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to check connection status: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async sendMessage(userId: string, content: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/messages`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        content,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to send message: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async getMessageResponse(messageId: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/messages/${messageId}/response`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get message response: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async getUserMemory(userId: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/users/${userId}/memory`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get user memory: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async healthCheck(): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/health`);
-    
-    if (!response.ok) {
-      throw new Error(`Health check failed: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-
-  async getUserConversations(userId: string): Promise<any> {
-    const response = await fetch(`${this.baseUrl}/users/${userId}/conversations`);
-    
-    if (!response.ok) {
-      throw new Error(`Failed to get conversations: ${response.statusText}`);
-    }
-
-    return response.json();
-  }
-}
-
-export const apiClient = new ApiClient();
+  async getResearchStatus(userId: string): Promise<{
+    status: string;
+    data?: { first_name: string; full_name?: string; insights: Array<{ label: string; value: string }> };
+  }> {
+    const res = await fetch(`${API_BASE_URL}/research/${userId}/status`);
+    if (!res.ok) throw new Error('Failed to get research status');
+    return res.json();
+  },
+};

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: weave-backend
+    runtime: docker
+    plan: free
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: COMPOSIO_API_KEY
+        sync: false
+      - key: COMPOSIO_AUTH_CONFIG_ID
+        sync: false

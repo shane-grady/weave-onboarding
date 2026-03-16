@@ -1,21 +1,16 @@
-export interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'agent';
-  timestamp: Date;
-  status?: 'sending' | 'sent' | 'failed';
+export interface Insight {
+  label: string;
+  value: string;
 }
 
-export interface User {
-  id: string;
-  name?: string;
-  email?: string;
-  phone?: string;
-  connection_id: string;
+export interface ResearchData {
+  first_name: string;
+  full_name?: string;
+  insights: Insight[];
 }
 
-export interface ConnectionStatus {
-  status: string;
-  connection_id: string;
-  redirect_url?: string;
+export interface ConnectionData {
+  userId: string;
+  connectionId: string;
+  redirectUrl?: string;
 }

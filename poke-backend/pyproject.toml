@@ -1,7 +1,7 @@
 [project]
-name = "poke-backend"
+name = "weave-backend"
 version = "0.1.0"
-description = "AI Agent with LangGraph, Composio, and Redis"
+description = "Weave onboarding backend"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -9,17 +9,12 @@ dependencies = [
     "uvicorn>=0.24.0",
     "langgraph",
     "langchain",
-    "langchain-openai",
+    "langchain-anthropic",
     "composio-langchain==0.8.0",
-    "redis>=5.0.0",
     "pydantic>=2.5.0",
-    "asyncio-mqtt>=0.16.0",
-    "celery>=5.3.0",
     "python-multipart>=0.0.6",
     "python-dotenv>=1.0.0",
 ]
 
 [project.scripts]
-poke = "cli:main"
-poke-advanced = "cli:advanced_main"
-poke-server = "main:main"
+weave-server = "main:main"

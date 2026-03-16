@@ -1,18 +1,18 @@
 from composio import Composio
 from composio_langchain import LangchainProvider
-from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 import os
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 composio = Composio(
     api_key=os.getenv("COMPOSIO_API_KEY"),
     provider=LangchainProvider(),
 )
 
-openai = ChatOpenAI(
-    api_key=os.getenv("OPENAI_API_KEY"),
-    model='gpt-5'
+llm = ChatAnthropic(
+    api_key=os.getenv("ANTHROPIC_API_KEY"),
+    model="claude-sonnet-4-20250514",
+    max_tokens=4096,
 )
