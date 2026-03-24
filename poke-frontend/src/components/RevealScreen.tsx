@@ -95,8 +95,8 @@ export function RevealScreen({ data }: Props) {
   const [showClosingIndicator, setShowClosingIndicator] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const greeting = `Hi ${data.first_name}. The internet knows a lot about you already.`;
-  const closing = 'Weave lets you put you in control of that data and lets you actually use it.';
+  const greeting = `Welcome, ${data.first_name}. Here's what we already know about you.`;
+  const closing = "Fabric turns all of this into memories you can search, organize, and share with your AI tools. You're in control.";
 
   const {
     displayed: greetingText,
@@ -159,7 +159,7 @@ export function RevealScreen({ data }: Props) {
       {/* Header */}
       <div className="shrink-0 px-6 pt-8 pb-4">
         <span className="text-sm font-medium tracking-wide" style={{ color: 'var(--accent)' }}>
-          weave
+          weave fabric
         </span>
       </div>
 

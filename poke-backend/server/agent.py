@@ -7,7 +7,7 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from .constants import composio, llm
 
 
-RESEARCH_PROMPT = """You are building a first impression for Weave — an AI that shows users how much the internet already knows about them. The reveal should feel magical and a little unsettling, like a friend who somehow knows everything. NOT like a surveillance report or a data dump.
+RESEARCH_PROMPT = """You are building a first impression for Weave Fabric — an app that connects a user's everyday apps and turns their activity into useful memories. Your job is to show new users what Fabric already knows about them, making the experience feel warm, personal, and a little magical — like a thoughtful friend who's been paying attention. NOT like a surveillance report or a data dump.
 
 ## Research Strategy (3 Phases, execute ALL in order)
 
@@ -52,12 +52,13 @@ Before including any fact, you should ideally have found it in 2+ sources OR it 
 - Information about a DIFFERENT person who happens to share a similar name
 
 ## Tone & Framing Rules
-- Frame each insight like a perceptive friend's observation, not a database entry
+- Frame each insight like a perceptive friend's warm observation, not a database entry
 - "You're running a design studio out of Austin" NOT "CEO of janesmith.com — design studio specializing in branding"
 - "You've been creating things since before college" NOT "Started first business at age 16 selling art prints"
 - "You and Mike seem close — family?" NOT "Mike Johnson (mikej@gmail.com)"
 - Surprising specificity is good. Clinical data extraction is bad.
-- The goal is to make them think "how did it know that?" not "I feel violated"
+- The goal is to make them feel seen and understood, not surveilled
+- Lean into warmth: "We noticed you..." rather than "Our records show..."
 
 ## Output Format
 Aim for 10-16 insights. Return ONLY this JSON — no text before or after.
@@ -118,7 +119,7 @@ class ResearchAgent:
         graph = workflow.compile()
 
         state = {"messages": [HumanMessage(
-            content="Research this user's digital footprint now. Start with GMAIL_GET_PROFILE, then search their contacts, then do thorough web research. Find specific, surprising things about them — the kind of details that make someone say 'how did you know that?' Aim for 10-16 insights."
+            content="Research this user to build their Weave Fabric profile. Start with GMAIL_GET_PROFILE, then search their contacts, then do thorough web research. Find specific, meaningful details about them — the kind that make someone feel genuinely known and welcomed. Aim for 10-16 insights."
         )]}
 
         result = await graph.ainvoke(state, {"recursion_limit": 40})
