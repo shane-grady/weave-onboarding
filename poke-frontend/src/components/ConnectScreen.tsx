@@ -59,7 +59,7 @@ export function ConnectScreen({ onConnected }: Props) {
       {/* Logo */}
       <div className="mb-12 fade-in">
         <h1 className="text-5xl font-semibold tracking-tight" style={{ color: 'var(--accent)' }}>
-          weave
+          weave fabric
         </h1>
       </div>
 
@@ -68,7 +68,7 @@ export function ConnectScreen({ onConnected }: Props) {
         {phase === 'idle' || phase === 'error' ? (
           <>
             <p className="text-lg text-neutral-400 mb-8 font-light">
-              See what the internet already knows about you.
+              Connect your accounts and let Fabric get to know you.
             </p>
             <button
               onClick={handleConnect}

@@ -10,7 +10,7 @@ from .agent import ResearchAgent
 from .connection import initiate_connection, get_connection_status
 from composio import Composio
 
-app = FastAPI(title="Weave Backend", version="1.0.0")
+app = FastAPI(title="Weave Fabric Backend", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,

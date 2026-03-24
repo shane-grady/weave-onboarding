@@ -6,12 +6,12 @@ interface Props {
 }
 
 const stages = [
-  { target: 15, label: 'Connecting to Gmail...', duration: 2000 },
-  { target: 30, label: 'Reading your emails...', duration: 6000 },
-  { target: 45, label: 'Scanning receipts & subscriptions...', duration: 8000 },
-  { target: 60, label: 'Mapping your contacts...', duration: 10000 },
-  { target: 75, label: 'Searching the web for you...', duration: 12000 },
-  { target: 88, label: 'Building your digital profile...', duration: 15000 },
+  { target: 15, label: 'Connecting to your account...', duration: 2000 },
+  { target: 30, label: 'Learning about you...', duration: 6000 },
+  { target: 45, label: 'Discovering your interests...', duration: 8000 },
+  { target: 60, label: 'Mapping your connections...', duration: 10000 },
+  { target: 75, label: 'Connecting the dots...', duration: 12000 },
+  { target: 88, label: 'Building your memory graph...', duration: 15000 },
 ];
 
 export function LoadingScreen({ onComplete, isResearchDone }: Props) {
