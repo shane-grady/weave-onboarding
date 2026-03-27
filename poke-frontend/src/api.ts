@@ -45,9 +45,34 @@ export const api = {
   async getResearchStatus(userId: string): Promise<{
     status: string;
     data?: { first_name: string; full_name?: string; insights: Array<{ label: string; value: string }> };
+    opening_message?: string;
   }> {
     const res = await fetch(`${API_BASE_URL}/research/${userId}/status`);
     if (!res.ok) throw new Error('Failed to get research status');
+    return res.json();
+  },
+
+  async sendMessage(userId: string, content: string): Promise<{
+    message_id: string;
+    status: string;
+  }> {
+    const res = await fetch(`${API_BASE_URL}/messages`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, content }),
+    });
+    if (!res.ok) throw new Error('Failed to send message');
+    return res.json();
+  },
+
+  async getMessageStatus(messageId: string): Promise<{
+    message_id: string;
+    status: string;
+    content: string;
+    response: string | null;
+  }> {
+    const res = await fetch(`${API_BASE_URL}/messages/${messageId}`);
+    if (!res.ok) throw new Error('Failed to get message status');
     return res.json();
   },
 };

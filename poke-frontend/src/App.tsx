@@ -1,37 +1,55 @@
 import { useState, useCallback } from 'react';
 import { ConnectScreen } from './components/ConnectScreen';
 import { LoadingScreen } from './components/LoadingScreen';
-import { RevealScreen } from './components/RevealScreen';
+import { ChatScreen } from './components/ChatScreen';
 import { api } from './api';
 import type { ConnectionData, ResearchData } from './types';
 
-type AppState = 'connect' | 'loading' | 'reveal';
+type AppState = 'connect' | 'loading' | 'chat';
 
 function App() {
   const [state, setState] = useState<AppState>('connect');
   const [researchData, setResearchData] = useState<ResearchData | null>(null);
+  const [openingMessage, setOpeningMessage] = useState('');
+  const [userId, setUserId] = useState('');
   const [isResearchDone, setIsResearchDone] = useState(false);
 
   const handleConnected = useCallback(async (data: ConnectionData) => {
     setState('loading');
+    setUserId(data.userId);
 
-    // Start research in background
+    // Fire research (returns immediately)
     try {
-      const result = await api.research(data.userId);
-      if (result.data) {
-        setResearchData(result.data);
-      } else {
-        setResearchData({ first_name: 'there', insights: [] });
-      }
+      await api.research(data.userId);
     } catch {
       setResearchData({ first_name: 'there', insights: [] });
+      setIsResearchDone(true);
+      return;
     }
-    setIsResearchDone(true);
+
+    // Poll for completion
+    const poll = setInterval(async () => {
+      try {
+        const result = await api.getResearchStatus(data.userId);
+        if (result.status === 'completed') {
+          clearInterval(poll);
+          setResearchData(result.data || { first_name: 'there', insights: [] });
+          setOpeningMessage(result.opening_message || '');
+          setIsResearchDone(true);
+        } else if (result.status === 'error') {
+          clearInterval(poll);
+          setResearchData({ first_name: 'there', insights: [] });
+          setIsResearchDone(true);
+        }
+      } catch {
+        // keep polling on network errors
+      }
+    }, 2000);
   }, []);
 
   const handleLoadingComplete = useCallback(() => {
     if (researchData) {
-      setState('reveal');
+      setState('chat');
     }
   }, [researchData]);
 
@@ -41,7 +59,9 @@ function App() {
       {state === 'loading' && (
         <LoadingScreen onComplete={handleLoadingComplete} isResearchDone={isResearchDone} />
       )}
-      {state === 'reveal' && researchData && <RevealScreen data={researchData} />}
+      {state === 'chat' && researchData && (
+        <ChatScreen data={researchData} openingMessage={openingMessage} userId={userId} />
+      )}
     </div>
   );
 }
