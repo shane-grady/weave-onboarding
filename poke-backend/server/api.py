@@ -3,11 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import Optional, Dict
 import asyncio
-import uuid
 import os
 
-from .models import User, Message
-from .agent import WeaveAgent
+from .models import User
+from .agent import ResearchAgent
 from .connection import initiate_connection, get_connection_status
 from composio import Composio
 
@@ -23,9 +22,8 @@ app.add_middleware(
 
 users: Dict[str, User] = {}
 research_results: Dict[str, dict] = {}
-messages: Dict[str, Message] = {}
 composio_client = Composio(api_key=os.getenv("COMPOSIO_API_KEY"))
-agent = WeaveAgent()
+research_agent = ResearchAgent()
 
 
 class ConnectionRequest(BaseModel):
@@ -36,11 +34,6 @@ class ConnectionRequest(BaseModel):
 class UserCreateRequest(BaseModel):
     connection_id: str
     name: Optional[str] = None
-
-
-class MessageRequest(BaseModel):
-    user_id: str
-    content: str
 
 
 @app.post("/users")
@@ -80,77 +73,29 @@ async def check_connection_status(connection_id: str):
         raise HTTPException(status_code=500, detail="Unable to check connection status")
 
 
-async def _run_research(user_id: str):
-    try:
-        result = await agent.research(user_id)
-        opening = await agent.generate_opening(result)
-        research_results[user_id] = {
-            "status": "completed",
-            "data": result,
-            "opening_message": opening,
-        }
-    except Exception as e:
-        print(f"Research error: {e}")
-        research_results[user_id] = {"status": "error", "data": None}
-
-
 @app.post("/research/{user_id}")
 async def research_user(user_id: str):
-    """Trigger research on a connected user. Returns immediately."""
+    """Trigger research on a connected user. Returns structured personal data."""
     if user_id not in users:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Mark as in-progress
     research_results[user_id] = {"status": "processing"}
-    asyncio.create_task(_run_research(user_id))
-    return {"status": "processing"}
+
+    try:
+        result = await research_agent.research(user_id)
+        research_results[user_id] = {"status": "completed", "data": result}
+        return {"status": "completed", "data": result}
+    except Exception as e:
+        print(f"Research error: {e}")
+        research_results[user_id] = {"status": "error", "data": None}
+        raise HTTPException(status_code=500, detail="Research failed")
 
 
 @app.get("/research/{user_id}/status")
 async def get_research_status(user_id: str):
     """Poll for research completion."""
     return research_results.get(user_id, {"status": "not_started"})
-
-
-async def _process_message(message_id: str):
-    msg = messages[message_id]
-    msg.status = "processing"
-    try:
-        research = research_results.get(msg.user_id, {}).get("data", {})
-        history = [
-            {"content": m.content, "response": m.response}
-            for m in messages.values()
-            if m.user_id == msg.user_id and m.status == "completed" and m.id != message_id
-        ]
-        response = await agent.chat(msg.user_id, msg.content, research, history)
-        msg.response = response
-        msg.status = "completed"
-    except Exception as e:
-        print(f"Message processing error: {e}")
-        msg.status = "error"
-
-
-@app.post("/messages")
-async def send_message(request: MessageRequest):
-    """Send a chat message. Returns immediately with message ID."""
-    message_id = str(uuid.uuid4())
-    msg = Message(id=message_id, user_id=request.user_id, content=request.content)
-    messages[message_id] = msg
-    asyncio.create_task(_process_message(message_id))
-    return {"message_id": message_id, "status": "queued"}
-
-
-@app.get("/messages/{message_id}")
-async def get_message(message_id: str):
-    """Poll for message response."""
-    msg = messages.get(message_id)
-    if not msg:
-        raise HTTPException(status_code=404, detail="Message not found")
-    return {
-        "message_id": msg.id,
-        "status": msg.status,
-        "content": msg.content,
-        "response": msg.response,
-    }
 
 
 @app.get("/health")
