@@ -11,6 +11,10 @@ def get_google_tools(composio_client: Composio, user_id: str):
         tools=[
             "GMAIL_GET_PROFILE",
             "GMAIL_SEARCH_PEOPLE",
-            "COMPOSIO_SEARCH_SEARCH",
+            "GMAIL_GET_CONTACTS",
+            "COMPOSIO_SEARCH_WEB",
+            "COMPOSIO_SEARCH_NEWS",
+            "COMPOSIO_SEARCH_FETCH_URL_CONTENT",
+            "COMPOSIO_SEARCH_EXA_ANSWER",
         ],
     )

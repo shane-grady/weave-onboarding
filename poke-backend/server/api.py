@@ -5,6 +5,7 @@ from typing import Optional, Dict
 import asyncio
 import uuid
 import os
+import traceback
 
 from .models import User, Message
 from .agent import WeaveAgent
@@ -90,19 +91,20 @@ async def _run_research(user_id: str):
             "opening_message": opening,
         }
     except Exception as e:
-        print(f"Research error: {e}")
-        research_results[user_id] = {"status": "error", "data": None}
+        error_tb = traceback.format_exc()
+        print(f"Research error: {e}\n{error_tb}", flush=True)
+        research_results[user_id] = {"status": "error", "data": None, "error": f"{e}\n{error_tb}"}
 
 
 @app.post("/research/{user_id}")
 async def research_user(user_id: str):
     """Trigger research on a connected user. Returns immediately."""
-    if user_id not in users:
-        raise HTTPException(status_code=404, detail="User not found")
+    if research_results.get(user_id, {}).get("status") == "processing":
+        return {"status": "processing", "user_id": user_id}
 
     research_results[user_id] = {"status": "processing"}
     asyncio.create_task(_run_research(user_id))
-    return {"status": "processing"}
+    return {"status": "processing", "user_id": user_id}
 
 
 @app.get("/research/{user_id}/status")
