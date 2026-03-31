@@ -9,6 +9,20 @@ export interface ResearchData {
   insights: Insight[];
 }
 
+export interface ResearchStatus {
+  status: string;
+  data?: ResearchData;
+  opening_message?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  content: string;
+  response?: string;
+  status: string;
+  isUser: boolean;
+}
+
 export interface ConnectionData {
   userId: string;
   connectionId: string;
