@@ -5,6 +5,7 @@ import type { ResearchData } from '../types';
 
 interface Props {
   data: ResearchData;
+  onDisconnect?: () => void;
 }
 
 type Phase = 'typing-greeting' | 'showing-insights' | 'typing-closing' | 'done';
@@ -88,14 +89,17 @@ function InsightIcon({ label }: { label: string }) {
   return <span className="text-neutral-500">{icons[iconKey] || icons.user}</span>;
 }
 
-export function RevealScreen({ data }: Props) {
+export function RevealScreen({ data, onDisconnect }: Props) {
+  const firstName = data?.first_name || 'there';
+  const insights = data?.insights ?? [];
+
   const [phase, setPhase] = useState<Phase>('typing-greeting');
   const [showTypingIndicator, setShowTypingIndicator] = useState(true);
   const [visibleInsights, setVisibleInsights] = useState(0);
   const [showClosingIndicator, setShowClosingIndicator] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const greeting = `Welcome, ${data.first_name}. Here's what we already know about you.`;
+  const greeting = `Welcome, ${firstName}. Here's what we already know about you.`;
   const closing = "Fabric turns all of this into memories you can search, organize, and share with your AI tools. You're in control.";
 
   const {
@@ -123,7 +127,7 @@ export function RevealScreen({ data }: Props) {
   // Reveal insights one by one
   useEffect(() => {
     if (phase !== 'showing-insights') return;
-    if (visibleInsights >= data.insights.length) {
+    if (visibleInsights >= insights.length) {
       // All insights shown → show closing typing indicator
       const timer = setTimeout(() => {
         setShowClosingIndicator(true);
@@ -139,7 +143,7 @@ export function RevealScreen({ data }: Props) {
       setVisibleInsights((n) => n + 1);
     }, 400);
     return () => clearTimeout(timer);
-  }, [phase, visibleInsights, data.insights.length]);
+  }, [phase, visibleInsights, insights.length]);
 
   // Mark done
   useEffect(() => {
@@ -157,10 +161,18 @@ export function RevealScreen({ data }: Props) {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="shrink-0 px-6 pt-8 pb-4">
+      <div className="shrink-0 px-6 pt-8 pb-4 flex items-center justify-between">
         <span className="text-sm font-medium tracking-wide" style={{ color: 'var(--accent)' }}>
           weave fabric
         </span>
+        {onDisconnect && (
+          <button
+            onClick={onDisconnect}
+            className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+          >
+            Disconnect
+          </button>
+        )}
       </div>
 
       {/* Messages area */}
@@ -180,7 +192,7 @@ export function RevealScreen({ data }: Props) {
           {/* Insights */}
           {visibleInsights > 0 && (
             <div className="mt-8 space-y-3">
-              {data.insights.slice(0, visibleInsights).map((insight, i) => (
+              {insights.slice(0, visibleInsights).map((insight, i) => (
                 <div
                   key={i}
                   className="slide-up flex items-start gap-3 py-2.5 px-4 rounded-lg"

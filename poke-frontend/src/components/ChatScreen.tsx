@@ -8,6 +8,7 @@ interface Props {
   data: ResearchData;
   openingMessage: string;
   userId: string;
+  onDisconnect?: () => void;
 }
 
 type Phase = 'typing-greeting' | 'showing-insights' | 'typing-opening' | 'chat';
@@ -98,7 +99,7 @@ function InsightIcon({ label }: { label: string }) {
   return <span className="text-neutral-500">{icons[iconKey] || icons.user}</span>;
 }
 
-export function ChatScreen({ data, openingMessage, userId }: Props) {
+export function ChatScreen({ data, openingMessage, userId, onDisconnect }: Props) {
   const firstName = data?.first_name || 'there';
   const insights = data?.insights ?? [];
   const hasInsights = insights.length > 0;
@@ -216,10 +217,18 @@ export function ChatScreen({ data, openingMessage, userId }: Props) {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <div className="shrink-0 px-6 pt-8 pb-4">
+      <div className="shrink-0 px-6 pt-8 pb-4 flex items-center justify-between">
         <span className="text-sm font-medium tracking-wide" style={{ color: 'var(--accent)' }}>
           weave fabric
         </span>
+        {onDisconnect && (
+          <button
+            onClick={onDisconnect}
+            className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+          >
+            Disconnect
+          </button>
+        )}
       </div>
 
       {/* Messages area */}

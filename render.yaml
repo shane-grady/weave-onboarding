@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: weave-backend
+    runtime: python
+    plan: free
+    rootDir: poke-backend
+    buildCommand: pip install uv && uv sync --frozen
+    startCommand: uv run uvicorn server.api:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: COMPOSIO_API_KEY
+        sync: false
