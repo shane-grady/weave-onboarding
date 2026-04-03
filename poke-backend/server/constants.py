@@ -13,6 +13,6 @@ composio = Composio(
 
 llm = ChatAnthropic(
     api_key=os.getenv("ANTHROPIC_API_KEY"),
-    model="claude-haiku-4-5-20251001",
+    model="claude-sonnet-4-20250514",
     max_tokens=4096,
 )
